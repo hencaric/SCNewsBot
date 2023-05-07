@@ -303,6 +303,12 @@ class AnnouncementBuilderView(discord.ui.View):
     async def toggle_private(
         self, interaction: discord.Interaction, button: discord.ui.Button
     ) -> None:
+        if not self._has_permission(interaction.user):
+            await interaction.response.send_message(
+                "You cannot use this menu.", ephemeral=True
+            )
+            return
+        
         self.announcement_builder.announcement.is_private = (
             not self.announcement_builder.announcement.is_private
         )
@@ -319,6 +325,12 @@ class AnnouncementBuilderView(discord.ui.View):
     async def toggle_notification(
         self, interaction: discord.Interaction, button: discord.ui.Button
     ) -> None:
+        if not self._has_permission(interaction.user):
+            await interaction.response.send_message(
+                "You cannot use this menu.", ephemeral=True
+            )
+            return
+        
         self.announcement_builder.announcement.will_notify = (
             not self.announcement_builder.announcement.will_notify
         )
