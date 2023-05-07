@@ -16,6 +16,9 @@ class Bot(commands.Bot):
             command_prefix=commands.when_mentioned_or(config.prefix),
             allowed_mentions=discord.AllowedMentions(everyone=False),
             case_insensitive=True,
+            activity=discord.Activity(
+                type=discord.ActivityType.watching, name="the devs..."
+            ),
         )
         self.config = config
         self.version = VERSION

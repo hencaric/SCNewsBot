@@ -16,6 +16,16 @@ async def get_ping_message(message: discord.Message, /) -> Optional[discord.Mess
             return ping
 
 
+def reformat_description(description: str) -> str:
+    split_description = description.split("\n")
+
+    for index, line in enumerate(split_description):
+        if line.startswith("-"):
+            split_description[index] = "➣" + line[1:]
+
+    return "\n".join(split_description)
+
+
 class AnnouncementCog(commands.Cog, name="Announcements"):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
@@ -116,7 +126,9 @@ class Announcement:
             setattr(self, option.id, converted_value)
             return True
 
-        if option.id == "channel":
+        if option.id == "description":
+            converted_value = reformat_description(value)
+        elif option.id == "channel":
             if value.startswith("#"):
                 value = value[1:]
 
