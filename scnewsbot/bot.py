@@ -3,6 +3,7 @@ from discord.ext import commands
 import discord
 from utils import Config
 
+VERSION = "0.0.0"
 INTENTS = discord.Intents.default()
 INTENTS.message_content = True
 INTENTS.members = True
@@ -17,6 +18,7 @@ class Bot(commands.Bot):
             case_insensitive=True,
         )
         self.config = config
+        self.version = VERSION
 
     async def setup_hook(self) -> None:
         for extension in self.config.extensions:
@@ -42,7 +44,7 @@ class CoreCog(commands.Cog, name="Core"):
             color=self.bot.config.embed_color,
             description="SCNewsBot is a Discord bot created for the r/starcitizen\n Discord server to help with writing news posts.",
         )
-        embed.add_field(name="Version", value=f"v0.0.0+{self._get_version()}")
+        embed.add_field(name="Version", value=f"v{self.bot.version}+{self._get_version()}")
         embed.add_field(
             name="Library", value=f"discord.py v{discord.__version__}", inline=False
         )
