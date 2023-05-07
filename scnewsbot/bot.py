@@ -46,4 +46,12 @@ class CoreCog(commands.Cog, name="Core"):
         embed.add_field(
             name="Library", value=f"discord.py v{discord.__version__}", inline=False
         )
-        await ctx.reply(embed=embed)
+        view = discord.ui.View()
+        view.add_item(
+            discord.ui.Button(
+                label="Source Code",
+                url="https://github.com/mudkipdev/scnewsbot",
+                style=discord.ButtonStyle.link,
+            )
+        )
+        await ctx.reply(embed=embed, view=view, mention_author=False)
