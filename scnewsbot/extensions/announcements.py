@@ -344,11 +344,11 @@ class AnnouncementBuilderView(discord.ui.View):
 
         announcement = self.announcement_builder.announcement
         role = announcement.ping
-        allowed_mentions = discord.AllowedMentions(
-            everyone=False,
-            users=False,
-            roles=[role]
-        ) if role else discord.AllowedMentions.none()
+        allowed_mentions = (
+            discord.AllowedMentions(everyone=False, users=False, roles=[role])
+            if role
+            else discord.AllowedMentions.none()
+        )
 
         if self.announcement_builder.edit:
             await interaction.response.send_message(
@@ -360,8 +360,7 @@ class AnnouncementBuilderView(discord.ui.View):
             embed.remove_footer()
 
             await self.announcement_builder.message.edit(
-                content=role.mention if role else None,
-                embed=embed
+                content=role.mention if role else None, embed=embed
             )
             return
 
@@ -383,19 +382,20 @@ class AnnouncementBuilderView(discord.ui.View):
         )
         self.stop()
 
-        message = await announcement.channel.send(embed=await announcement.get_embed(bot=interaction.client),)
+        message = await announcement.channel.send(
+            embed=await announcement.get_embed(bot=interaction.client),
+        )
         if announcement.will_notify:
             await message.publish()
 
         if announcement.ping and announcement.ping_preview:
             await announcement.channel.send(
                 f"{announcement.ping.mention} - {announcement.ping_preview}",
-                allowed_mentions=allowed_mentions
+                allowed_mentions=allowed_mentions,
             )
         elif announcement.ping:
             await announcement.channel.send(
-                announcement.ping.mention,
-                allowed_mentions=allowed_mentions
+                announcement.ping.mention, allowed_mentions=allowed_mentions
             )
 
 
