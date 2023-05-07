@@ -211,10 +211,16 @@ class Announcement:
             if len(split_message) == 2:
                 ping_preview = split_message[1]
 
+        url = None
+        description = embed.description
+        if len(embed.description.split("\n\n")) > 0:
+            url = embed.description.split("\n\n")[0]
+            description = "\n\n".join(embed.description.split("\n\n")[1:])
+        
         return cls(
             title=embed.title,
-            url=embed.url,
-            description=embed.description,
+            url=url,
+            description=description,
             image_url=embed.image.url,
             channel=message.channel,
             ping=ping,
