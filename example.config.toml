@@ -4,8 +4,8 @@ debug = true
 [bot]
 prefix = "&"
 extensions = [
-    "announcements",
-    "templates"
+    "extensions.announcements",
+    "extensions.templates"
 ]
 
 [permissions]
