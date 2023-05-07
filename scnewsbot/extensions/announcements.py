@@ -308,7 +308,7 @@ class AnnouncementBuilderView(discord.ui.View):
                 "You cannot use this menu.", ephemeral=True
             )
             return
-        
+
         self.announcement_builder.announcement.is_private = (
             not self.announcement_builder.announcement.is_private
         )
@@ -330,7 +330,7 @@ class AnnouncementBuilderView(discord.ui.View):
                 "You cannot use this menu.", ephemeral=True
             )
             return
-        
+
         self.announcement_builder.announcement.will_notify = (
             not self.announcement_builder.announcement.will_notify
         )
