@@ -2,8 +2,6 @@ from discord.ext import commands
 import discord
 from extensions.announcements import Announcement
 
-EMBED_COLOR = 0x1ABC9C
-
 TEMPLATES: dict[str, Announcement] = {
     "isc": Announcement(title="Inside Star Citizen | [topic] - [subtopic]"),
     "scl": Announcement(title="Star Citizen Live | [topic] - [subtopic]"),
@@ -90,13 +88,17 @@ class TemplatesCog(commands.Cog, name="Templates"):
     @commands.command(name="previews", brief="Shows all the possible ping previews.")
     async def ping_previews(self, ctx: commands.Context) -> None:
         await ctx.reply(
-            embed=discord.Embed(color=EMBED_COLOR, description=PING_PREVIEWS),
+            embed=discord.Embed(
+                color=self.bot.config.embed_color, description=PING_PREVIEWS
+            ),
             allowed_mentions=discord.AllowedMentions.none(),
         )
 
     @commands.command(brief="Shows all the channel IDs for announcements.")
     async def channels(self, ctx: commands.Context) -> None:
-        await ctx.reply(embed=discord.Embed(color=EMBED_COLOR, description=CHANNELS))
+        await ctx.reply(
+            embed=discord.Embed(color=self.bot.config.embed_color, description=CHANNELS)
+        )
 
 
 async def setup(bot: commands.Bot) -> None:

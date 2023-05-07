@@ -6,6 +6,10 @@ class Config:
         self.config = config
 
     @property
+    def embed_color(self) -> int:
+        return 0x1ABC9C
+
+    @property
     def debug(self) -> bool:
         return self.config.get("debug", False)
 

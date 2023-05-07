@@ -7,7 +7,6 @@ import discord
 from utils import can_publish_announcements
 
 ANNOUNCEMENT_BUILDER_TIMEOUT = 1200
-EMBED_COLOR = 0x1ABC9C
 EMBED_THUMBNAIL = "https://imgur.com/MJnM3LU.png"
 
 
@@ -143,7 +142,7 @@ class Announcement:
 
     async def get_embed(self, *, bot: commands.Bot) -> discord.Embed:
         embed = discord.Embed(
-            color=EMBED_COLOR,
+            color=bot.config.embed_color,
             title=self.title,
             url=self.url,
             description=self.description,
