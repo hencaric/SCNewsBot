@@ -13,7 +13,6 @@ EMBED_THUMBNAIL = "https://imgur.com/MJnM3LU.png"
 
 async def get_ping_message(message: discord.Message, /) -> Optional[discord.Message]:
     async for ping in message.channel.history(limit=1, after=message.created_at):
-        print(ping.content)
         if ping.author.id == message._state.user.id and ping.mentions:
             return ping
 
