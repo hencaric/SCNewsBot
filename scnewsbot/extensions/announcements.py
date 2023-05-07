@@ -216,7 +216,7 @@ class Announcement:
         if len(embed.description.split("\n\n")) > 0:
             url = embed.description.split("\n\n")[0]
             description = "\n\n".join(embed.description.split("\n\n")[1:])
-        
+
         return cls(
             title=embed.title,
             url=url,
