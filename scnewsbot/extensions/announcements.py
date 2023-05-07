@@ -144,10 +144,15 @@ class Announcement:
         embed = discord.Embed(
             color=bot.config.embed_color,
             title=self.title,
-            url=self.url,
             description=self.description,
         )
         embed.set_image(url=self.image_url)
+
+        if self.url and self.description:
+            embed.description = f"{self.url}\n\n" + embed.description
+        elif self.url:
+            embed.description = self.url
+
         if EMBED_THUMBNAIL:
             embed.set_thumbnail(url=EMBED_THUMBNAIL)
 
