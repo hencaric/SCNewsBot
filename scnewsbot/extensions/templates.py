@@ -1,6 +1,7 @@
 from discord.ext import commands
 import discord
 from extensions.announcements import Announcement
+from utils import can_publish_announcements
 
 TEMPLATES: dict[str, Announcement] = {
     "isc": Announcement(title="Inside Star Citizen | [topic] - [subtopic]"),
@@ -58,11 +59,13 @@ class TemplatesCog(commands.Cog, name="Templates"):
     async def templates(self, ctx: commands.Context) -> None:
         await ctx.send_help(ctx.command)
 
+    @commands.check(can_publish_announcements)
     @templates.command(name="list")
     async def _list(self, ctx: commands.Context) -> None:
         templates = "\n".join([f"- {template}" for template in self.templates])
         await ctx.reply(f"Here are all of the available templates: ```\n{templates}```")
-
+    
+    @commands.check(can_publish_announcements)
     @templates.command()
     async def view(self, ctx: commands.Context, *, template_name: str) -> None:
         templates = {name.lower(): value for name, value in self.templates.items()}
@@ -78,6 +81,7 @@ class TemplatesCog(commands.Cog, name="Templates"):
         embed.remove_author()
         await ctx.reply(embed=embed)
 
+    @commands.check(can_publish_announcements)
     @commands.command(brief='A shortcut to the "templates view" command.')
     async def template(self, ctx: commands.Context, *, template_name: str) -> None:
         await ctx.invoke(
@@ -85,6 +89,7 @@ class TemplatesCog(commands.Cog, name="Templates"):
             template_name=template_name,
         )
 
+    @commands.check(can_publish_announcements)
     @commands.command(name="previews", brief="Shows all the possible ping previews.")
     async def ping_previews(self, ctx: commands.Context) -> None:
         await ctx.reply(
@@ -94,6 +99,7 @@ class TemplatesCog(commands.Cog, name="Templates"):
             allowed_mentions=discord.AllowedMentions.none(),
         )
 
+    @commands.check(can_publish_announcements)
     @commands.command(brief="Shows all the channel IDs for announcements.")
     async def channels(self, ctx: commands.Context) -> None:
         await ctx.reply(

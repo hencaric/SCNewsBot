@@ -34,9 +34,9 @@ class Config:
         return self._get_allowed_objects("allowed_users")
 
     def _get_allowed_objects(self, object_name, /) -> list:
-        allowed_objects = self.config["permissions"].get(object_name, [])
+        allowed_objects = self.config["permissions"]["announcements"].get(object_name, [])
         if self.debug:
-            allowed_objects += self.config["permissions"]["debug"].get(object_name, [])
+            allowed_objects += self.config["permissions"]["announcements"]["debug"].get(object_name, [])
 
         return allowed_objects
 
