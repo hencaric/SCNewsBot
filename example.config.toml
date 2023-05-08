@@ -8,14 +8,14 @@ extensions = [
     "extensions.templates"
 ]
 
-[permissions.announcements]
+[permissions]
 # This works in a whitelist mode. The invoker of the command must be in an allowed guild and
 # must have an allowed role. If neither of those are true, allowed_users is checked last.
 allowed_guilds = []
 allowed_roles = []
 allowed_users = []
 
-[permissions.announcements.debug]
+[permissions.debug]
 # This works in addition to the regular permissions, but only if debug mode is enabled.
 allowed_guilds = []
 allowed_roles = []
