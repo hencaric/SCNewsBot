@@ -64,7 +64,7 @@ class TemplatesCog(commands.Cog, name="Templates"):
     async def _list(self, ctx: commands.Context) -> None:
         templates = "\n".join([f"- {template}" for template in self.templates])
         await ctx.reply(f"Here are all of the available templates: ```\n{templates}```")
-    
+
     @commands.check(can_publish_announcements)
     @templates.command()
     async def view(self, ctx: commands.Context, *, template_name: str) -> None:
