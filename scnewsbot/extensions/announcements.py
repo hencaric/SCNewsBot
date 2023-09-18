@@ -7,7 +7,17 @@ import discord
 from utils import can_publish_announcements
 
 ANNOUNCEMENT_BUILDER_TIMEOUT = 1200
-EMBED_THUMBNAIL = "https://imgur.com/MJnM3LU.png"
+ANNOUNCEMENT_EMOJI = "👍" # <:upvote:354233015842635776>
+DEFAULT_IMAGE_URL = "https://media.discordapp.net/attachments/1062905729532571719/1123340546979676311/NewsDefault.jpg?width=810&height=180"
+INSTRUCTIONS = """\
+1. Title should not use any formatting.
+2. "Video" should only be used for YouTube or video links with pretty embeds.
+3. URL should be used for any regular link such as a comm-link.
+4. In the description box, use `-` and it will replace it with `➣`, use `+` and it will replace it with `✦` preceeded by three spaces.
+5. Use the `&ids` commands to get the channel and role IDs.
+6. Do not ping for every post if there are consecutive posts in the same channel, instead ping only on the final post and provide an overall preview.\n7. **ALWAYS** include a ping preview, you can find these using `&previews`.
+8. Always select publish unless explicitly not needed (server only announcements).\
+"""
 
 
 async def get_ping_message(message: discord.Message, /) -> Optional[discord.Message]:
@@ -22,6 +32,8 @@ def reformat_description(description: str) -> str:
     for index, line in enumerate(split_description):
         if line.startswith("-"):
             split_description[index] = "➣" + line[1:]
+        elif line.startswith("+"):
+            split_description[index] = "ㅤ✦" + line[1:]
 
     return "\n".join(split_description)
 
@@ -29,6 +41,16 @@ def reformat_description(description: str) -> str:
 class AnnouncementCog(commands.Cog, name="Announcements"):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
+
+    @commands.check(can_publish_announcements)
+    @commands.command(brief="Gives you instructions for using the announcement system.")
+    async def instructions(self, ctx: commands.Context) -> None:
+        embed = discord.Embed(
+            color=self.bot.config.embed_color,
+            title="Instructions",
+            description=INSTRUCTIONS,
+        )
+        await ctx.reply(embed=embed)
 
     @commands.guild_only()
     @commands.group(
@@ -40,11 +62,17 @@ class AnnouncementCog(commands.Cog, name="Announcements"):
         await ctx.send_help(ctx.command)
 
     @commands.check(can_publish_announcements)
-    @announcements.command(brief="Creates and sends a new announcement.")
+    @announcements.command(
+        aliases=["post"], brief="Creates and sends a new announcement."
+    )
     async def create(self, ctx: commands.Context) -> None:
         announcement_builder = AnnouncementBuilder(owner=ctx.author)
         embed = await announcement_builder.get_embed(bot=self.bot)
-        await ctx.send(embed=embed, view=announcement_builder.view)
+        await ctx.send(
+            content=announcement_builder.announcement.video_url,
+            embed=embed,
+            view=announcement_builder.view,
+        )
 
     @commands.check(can_publish_announcements)
     @announcements.command(brief="Edits an existing announcement.")
@@ -54,7 +82,11 @@ class AnnouncementCog(commands.Cog, name="Announcements"):
             edit_message=message, edit_announcement=announcement, owner=ctx.author
         )
         embed = await announcement_builder.get_embed(bot=self.bot)
-        await ctx.send(embed=embed, view=announcement_builder.view)
+        await ctx.send(
+            content=announcement_builder.announcement.video_url,
+            embed=embed,
+            view=announcement_builder.view,
+        )
 
     @commands.check(can_publish_announcements)
     @announcements.command(brief="Deletes an announcement.")
@@ -99,24 +131,26 @@ class Announcement:
         title: str = "Announcement",
         url: Optional[str] = None,
         description: Optional[str] = None,
-        image_url: Optional[str] = None,
+        video_url: Optional[str] = None,
+        image_url: Optional[str] = DEFAULT_IMAGE_URL,
         channel: Optional[discord.abc.Messageable] = None,
         ping: Optional[discord.Role] = None,
         ping_preview: Optional[str] = None,
         author_id: Optional[int] = None,
-        is_private: bool = False,
+        is_anonymous: bool = False,
         will_notify: bool = False,
     ) -> None:
         self.title = title
         self.url = url
         self.description = description
+        self.video_url = video_url
         self.image_url = image_url
         self.channel = channel
         self.ping = ping
         self.ping_preview = ping_preview
 
         self.author_id = author_id
-        self.is_private = is_private
+        self.is_anonymous = is_anonymous
         self.will_notify = will_notify
 
     async def set_option(
@@ -144,6 +178,9 @@ class Announcement:
             if not converted_value and value.isnumeric():
                 converted_value = guild.get_role(int(value))
         else:
+            if option.id == "video_url" and self.image_url == DEFAULT_IMAGE_URL:
+                self.image_url = None
+
             converted_value = value
 
         if converted_value is None:
@@ -152,7 +189,7 @@ class Announcement:
         setattr(self, option.id, converted_value)
         return True
 
-    async def get_embed(self, *, bot: commands.Bot) -> discord.Embed:
+    async def get_embed(self, *, bot: commands.Bot, show_author: bool = False) -> discord.Embed:
         embed = discord.Embed(
             color=bot.config.embed_color,
             title=self.title,
@@ -165,10 +202,7 @@ class Announcement:
         elif self.url:
             embed.description = self.url
 
-        if EMBED_THUMBNAIL:
-            embed.set_thumbnail(url=EMBED_THUMBNAIL)
-
-        if not self.is_private:
+        if not self.is_anonymous or show_author:
             if self.author_id:
                 author = await bot.fetch_user(self.author_id)
                 embed.set_footer(text=f"This post was written by {author}")
@@ -213,20 +247,23 @@ class Announcement:
 
         url = None
         description = embed.description
-        if len(embed.description.split("\n\n")) > 0:
-            url = embed.description.split("\n\n")[0]
-            description = "\n\n".join(embed.description.split("\n\n")[1:])
+
+        if embed.description is not None:
+            if len(embed.description.split("\n\n")) > 0:
+                url = embed.description.split("\n\n")[0]
+                description = "\n\n".join(description.split("\n\n")[1:])
 
         return cls(
             title=embed.title,
             url=url,
             description=description,
+            video_url=message.content,
             image_url=embed.image.url,
             channel=message.channel,
             ping=ping,
             ping_preview=ping_preview,
             author_id=author.id if author else None,
-            is_private=embed.author is None,
+            is_anonymous=embed.author is None,
             will_notify=False,
         )
 
@@ -251,14 +288,8 @@ class AnnouncementBuilder:
         self.options: list[Option] = []
         self.add_option(Option(id="title", name="Title"))
         self.add_option(Option(id="url", name="URL"))
-        self.add_option(
-            Option(
-                id="description",
-                name="Description",
-                directions="Here are some directions.",
-                is_long=True,
-            )
-        )
+        self.add_option(Option(id="description", name="Description", is_long=True))
+        self.add_option(Option(id="video_url", name="Video"))
         self.add_option(Option(id="image_url", name="Image"))
         self.add_option(Option(id="channel", name="Channel", row=1))
         self.add_option(Option(id="ping", name="Ping", row=1))
@@ -299,6 +330,7 @@ class AnnouncementBuilderView(discord.ui.View):
             self.toggle_notification.disabled = True
 
         await interaction.response.edit_message(
+            content=self.announcement_builder.announcement.video_url,
             embed=await self.announcement_builder.get_embed(bot=interaction.client),
             view=self,
             allowed_mentions=discord.AllowedMentions.none(),
@@ -322,8 +354,8 @@ class AnnouncementBuilderView(discord.ui.View):
             )
         )
 
-    @discord.ui.button(custom_id="private", label="Private", row=2)
-    async def toggle_private(
+    @discord.ui.button(custom_id="anonymous", label="Anonymous?", row=2)
+    async def toggle_anonymous(
         self, interaction: discord.Interaction, button: discord.ui.Button
     ) -> None:
         if not self._has_permission(interaction.user):
@@ -332,10 +364,10 @@ class AnnouncementBuilderView(discord.ui.View):
             )
             return
 
-        self.announcement_builder.announcement.is_private = (
-            not self.announcement_builder.announcement.is_private
+        self.announcement_builder.announcement.is_anonymous = (
+            not self.announcement_builder.announcement.is_anonymous
         )
-        if self.announcement_builder.announcement.is_private:
+        if self.announcement_builder.announcement.is_anonymous:
             button.style = discord.ButtonStyle.green
         else:
             button.style = discord.ButtonStyle.gray
@@ -343,7 +375,7 @@ class AnnouncementBuilderView(discord.ui.View):
         await self._update(interaction)
 
     @discord.ui.button(
-        custom_id="notification", label="Published", row=2, disabled=True
+        custom_id="notification", label="Published?", row=2, disabled=True
     )
     async def toggle_notification(
         self, interaction: discord.Interaction, button: discord.ui.Button
@@ -394,13 +426,13 @@ class AnnouncementBuilderView(discord.ui.View):
             embed.remove_footer()
 
             await self.announcement_builder.message.edit(
-                content=role.mention if role else None, embed=embed
+                content=self.announcement_builder.announcement.video_url, embed=embed
             )
             return
 
-        if not announcement.title and announcement.channel:
+        if not announcement.channel:
             await interaction.response.send_message(
-                "You must have a title and channel selected!", ephemeral=True
+                "You must have a channel selected!", ephemeral=True
             )
             return
 
@@ -412,15 +444,32 @@ class AnnouncementBuilderView(discord.ui.View):
             return
 
         await interaction.response.send_message(
-            "Your announcement was posted! 🎉", ephemeral=True
+            "Your announcement was posted! 🎉 https://i.imgur.com/HRoxTzg.gif",
+            ephemeral=True,
         )
         self.stop()
+        bot = interaction.client
 
         message = await announcement.channel.send(
-            embed=await announcement.get_embed(bot=interaction.client),
+            content=announcement.video_url,
+            embed=await announcement.get_embed(bot=bot),
         )
+        await message.add_reaction(ANNOUNCEMENT_EMOJI)
+
+        for channel_id in bot.config.repost_channels:
+            repost_channel = await bot.fetch_channel(channel_id)
+            await repost_channel.send(
+                content=announcement.video_url,
+                embed=await announcement.get_embed(bot=bot, show_author=True),
+            )
+            await repost_channel.send(f"(posted in {announcement.channel.mention})")
+
         if announcement.will_notify:
-            await message.publish()
+            try:
+                await message.publish()
+            except discord.Forbidden:
+                # Not an announcement channel
+                pass
 
         if announcement.ping and announcement.ping_preview:
             await announcement.channel.send(

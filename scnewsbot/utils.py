@@ -7,7 +7,7 @@ class Config:
 
     @property
     def embed_color(self) -> int:
-        return 0x1ABC9C
+        return 0x0504AA
 
     @property
     def debug(self) -> bool:
@@ -20,6 +20,10 @@ class Config:
     @property
     def extensions(self) -> list:
         return self.config["bot"].get("extensions", ["jishaku"])
+
+    @property
+    def repost_channels(self) -> list[int]:
+        return self.config["bot"].get("repost_channels", [])
 
     @property
     def allowed_guilds(self) -> list:

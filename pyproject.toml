@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "scnewsbot"
-version = "0.0.0"
+version = "1.0.0"
 description = "A bot for the r/starcitizen Discord server."
 authors = ["mudkipdev <mudkip@mudkip.dev>"]
 license = "MIT"

@@ -19,30 +19,37 @@ TEMPLATES: dict[str, Announcement] = {
 }
 PING_PREVIEWS = """\
 **Patch Notes**
-- New Wave: `@SC Patch Notes - 3.XX Wave X Release`
-- PTU Update: `@SC Patch Notes - 3.XX PTU Update`
-- Live Update: `@SC Patch Notes - 3.XX LIVE Update`
+- New Wave: `3.XX Wave X Release`
+- PTU Update: `3.XX PTU Update`
+- Live Update: `3.XX LIVE Update`
 
 **SC News**
-- ISC: `@SC News - Inside Star Citizen`
-- SCL: `@SC News - Star Citizen Live`
-- Progress Tracker: `@SC News - Progress Tracker Update`
-- Roadmap: `@SC News - Roadmap Roundup`
-- SC Monthly Report: `@SC News - Star Citizen Monthly Report`
-- SQ42 Monthly Report: `@SC News - Squadron 42 Monthly Report`
-- Dynamic Event: `@SC News - Event Name PU/PTU`
+- ISC: `Inside Star Citizen`
+- SCL: `Star Citizen Live`
+- Progress Tracker: `Progress Tracker Update`
+- Roadmap: `Roadmap Roundup`
+- SC Monthly Report: `Star Citizen Monthly Report`
+- SQ42 Monthly Report: `Squadron 42 Monthly Report`
+- Dynamic Event: `Event Name PU/PTU`
 
 **General News**
-- Sneak Peek: `@General News - Weekly Sneak Peek`
-- Lore Post: `@General News - Lore Post: Name`
-- Dev Reply: `@General News - Dev Reply`
-- Subscriber Items: `@General News - Month Subscriber Promotions`
-- JP: `@General News - Jump Point`
+- Sneak Peek: `Weekly Sneak Peek`
+- Lore Post: `Lore Post: Name`
+- Dev Reply: `Dev Reply`
+- Subscriber Items: `Month Subscriber Promotions`
+- JP: `Jump Point`
 """
-CHANNELS = """\
+IDS = """\
+**Channels**
 Patch Notes - `585952222853201941`
 SC News - `569635458183856149`
 General News - `803341100618219540`
+
+**Roles**
+Server News - `1113152142300156004`
+Patch Notes - `620025894559547412`
+SC News - `620025828079697920`
+General News - `803343410794594385`
 """
 
 
@@ -100,10 +107,10 @@ class TemplatesCog(commands.Cog, name="Templates"):
         )
 
     @commands.check(can_publish_announcements)
-    @commands.command(brief="Shows all the channel IDs for announcements.")
-    async def channels(self, ctx: commands.Context) -> None:
+    @commands.command(brief="Shows all the channel and role IDs for announcements.")
+    async def ids(self, ctx: commands.Context) -> None:
         await ctx.reply(
-            embed=discord.Embed(color=self.bot.config.embed_color, description=CHANNELS)
+            embed=discord.Embed(color=self.bot.config.embed_color, description=IDS)
         )
 
 

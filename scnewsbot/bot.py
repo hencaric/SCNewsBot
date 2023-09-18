@@ -41,10 +41,15 @@ class CoreCog(commands.Cog, name="Core"):
             .strip()
         )
 
+    @commands.Cog.listener()
+    async def on_ready(self) -> None:
+        print("The bot is now ready.")
+
     @commands.hybrid_command(description="Shows you some info about the bot.")
     async def info(self, ctx: commands.Context) -> None:
         embed = discord.Embed(
             color=self.bot.config.embed_color,
+            title="Info",
             description="SCNewsBot is a Discord bot created for the r/starcitizen\n Discord server to help with writing news posts.",
         )
         embed.add_field(
@@ -52,6 +57,10 @@ class CoreCog(commands.Cog, name="Core"):
         )
         embed.add_field(
             name="Library", value=f"discord.py v{discord.__version__}", inline=False
+        )
+        embed.add_field(
+            name="Authors",
+            value=f"Ian (<@1088892000348151839>), and mudkip (<@998070081709932654>)",
         )
         view = discord.ui.View()
         view.add_item(
