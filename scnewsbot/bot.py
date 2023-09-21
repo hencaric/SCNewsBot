@@ -45,6 +45,17 @@ class CoreCog(commands.Cog, name="Core"):
     async def on_ready(self) -> None:
         print("The bot is now ready.")
 
+    @commands.Cog.listener()
+    async def on_message(self, message: discord.Message) -> None:
+        if (
+            message.channel.id in self.bot.config.publish_channels
+            and message.channel.type is discord.ChannelType.news
+        ):
+            try:
+                await message.publish()
+            except discord.Forbidden:
+                pass
+
     @commands.hybrid_command(description="Shows you some info about the bot.")
     async def info(self, ctx: commands.Context) -> None:
         embed = discord.Embed(

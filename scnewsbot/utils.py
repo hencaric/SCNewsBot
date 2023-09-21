@@ -26,6 +26,10 @@ class Config:
         return self.config["bot"].get("repost_channels", [])
 
     @property
+    def publish_channels(self) -> list[int]:
+        return self.config["bot"].get("publish_channels", [])
+
+    @property
     def allowed_guilds(self) -> list:
         return self._get_allowed_objects("allowed_guilds")
 

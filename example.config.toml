@@ -7,7 +7,9 @@ extensions = [
     "extensions.announcements",
     "extensions.templates"
 ]
+
 repost_channels = []
+publish_channels = []
 
 [permissions]
 # This works in a whitelist mode. The invoker of the command must be in an allowed guild and
