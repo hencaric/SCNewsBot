@@ -20,10 +20,16 @@ INSTRUCTIONS = """\
 """
 
 
-async def get_ping_message(message: discord.Message, /) -> Optional[discord.Message]:
-    async for ping in message.channel.history(limit=1, after=message.created_at):
-        if ping.author.id == message._state.user.id and ping.mentions:
-            return ping
+async def get_follow_up_message(
+    announcement: discord.Message, /, *, limit: int
+) -> Optional[discord.Message]:
+    index = 0
+
+    async for message in announcement.channel.history(after=announcement.created_at):
+        index += 1
+
+        if message.author.id == announcement._state.user.id and index == limit:
+            return message
 
 
 def reformat_description(description: str) -> str:
@@ -94,7 +100,11 @@ class AnnouncementCog(commands.Cog, name="Announcements"):
         if message.author != self.bot.user and not message.embeds:
             await ctx.reply("That is not an announcement.")
 
-        ping_message = await get_ping_message(message)
+        video_message = await get_follow_up_message(message, limit=1)
+        ping_message = await get_follow_up_message(message, limit=2)
+
+        if video_message:
+            await video_message.delete()
         if ping_message:
             await ping_message.delete()
 
@@ -236,7 +246,7 @@ class Announcement:
 
         ping = None
         ping_preview = None
-        ping_message = await get_ping_message(message)
+        ping_message = await get_follow_up_message(message, limit=2)
 
         if ping_message:
             split_message = ping_message.content.split(" - ")
@@ -249,6 +259,7 @@ class Announcement:
 
         url = None
         description = embed.description
+        video_message = await get_follow_up_message(message, limit=1)
 
         if embed.description is not None:
             if len(embed.description.split("\n\n")) > 0:
@@ -259,7 +270,7 @@ class Announcement:
             title=embed.title,
             url=url,
             description=description,
-            video_url=message.content,
+            video_url=video_message.content,
             image_url=embed.image.url,
             channel=message.channel,
             ping=ping,
@@ -356,6 +367,23 @@ class AnnouncementBuilderView(discord.ui.View):
             )
         )
 
+    @discord.ui.button(
+        custom_id="cancel", label="Cancel", style=discord.ButtonStyle.danger, row=2
+    )
+    async def cancel(
+        self, interaction: discord.Interaction, button: discord.ui.Button
+    ) -> None:
+        if not self._has_permission(interaction.user):
+            await interaction.response.send_message(
+                "You cannot use this menu.", ephemeral=True
+            )
+            return
+
+        self.stop()
+        await interaction.response.send_message(
+            "Cancelled posting/editing this announcement."
+        )
+
     @discord.ui.button(custom_id="anonymous", label="Anonymous?", row=2)
     async def toggle_anonymous(
         self, interaction: discord.Interaction, button: discord.ui.Button
@@ -419,17 +447,20 @@ class AnnouncementBuilderView(discord.ui.View):
         )
 
         if self.announcement_builder.edit:
-            await interaction.response.send_message(
-                "Your announcement was edited! 🎉", ephemeral=True
-            )
+            await interaction.response.send_message("Your announcement was edited! 🎉")
             self.stop()
 
             embed = await self.announcement_builder.get_embed(bot=interaction.client)
             embed.remove_footer()
 
-            await self.announcement_builder.message.edit(
-                content=self.announcement_builder.announcement.video_url, embed=embed
+            await self.announcement_builder.message.edit(embed=embed)
+            video_message = await get_follow_up_message(
+                self.announcement_builder.message, limit=1
             )
+            await video_message.edit(
+                content=self.announcement_builder.announcement.video_url
+            )
+
             return
 
         if not announcement.channel:
@@ -446,32 +477,28 @@ class AnnouncementBuilderView(discord.ui.View):
             return
 
         await interaction.response.send_message(
-            "Your announcement was posted! 🎉 https://i.imgur.com/HRoxTzg.gif",
-            ephemeral=True,
+            "Your announcement was posted! 🎉 https://i.imgur.com/HRoxTzg.gif"
         )
         self.stop()
-        bot = interaction.client
 
+        bot = interaction.client
+        video_message = None
         message = await announcement.channel.send(
-            content=announcement.video_url,
             embed=await announcement.get_embed(bot=bot),
         )
+
         await message.add_reaction(ANNOUNCEMENT_EMOJI)
+
+        if announcement.video_url:
+            video_message = await announcement.channel.send(announcement.video_url)
 
         for channel_id in bot.config.repost_channels:
             repost_channel = await bot.fetch_channel(channel_id)
             await repost_channel.send(
-                content=announcement.video_url,
-                embed=await announcement.get_embed(bot=bot, show_author=True),
+                embed=await announcement.get_embed(bot=bot, show_author=True)
             )
+            await repost_channel.send(announcement.video_url)
             await repost_channel.send(f"(posted in {announcement.channel.mention})")
-
-        if announcement.will_notify:
-            try:
-                await message.publish()
-            except discord.Forbidden:
-                # Not an announcement channel
-                pass
 
         if announcement.ping and announcement.ping_preview:
             await announcement.channel.send(
@@ -482,6 +509,15 @@ class AnnouncementBuilderView(discord.ui.View):
             await announcement.channel.send(
                 announcement.ping.mention, allowed_mentions=allowed_mentions
             )
+
+        if announcement.will_notify:
+            try:
+                await message.publish()
+
+                if video_message:
+                    await video_message.publish()
+            except discord.Forbidden:
+                pass
 
 
 class ChangeOptionModal(discord.ui.Modal):
