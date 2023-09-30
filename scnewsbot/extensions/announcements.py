@@ -47,10 +47,21 @@ async def get_follow_up_message(
 
 def is_announcement(announcement: discord.Message, /) -> bool:
     return (
-        announcement.author == announcement.guild.me
+        announcement
+        and announcement.author == announcement.guild.me
         and len(announcement.embeds) == 1
         and not announcement.content
         and not announcement.components
+    )
+
+
+def is_video_message(announcement: discord.Message, /) -> bool:
+    return (
+        announcement
+        and announcement.author == announcement.guild.me
+        and len(announcement.embeds) == 1
+        and not announcement.mentions
+        and announcement.content
     )
 
 
@@ -126,7 +137,7 @@ class AnnouncementCog(commands.Cog, name="Announcements"):
         video_message = await get_follow_up_message(message, limit=-1)
         ping_message = await get_follow_up_message(message, limit=1)
 
-        if video_message:
+        if is_video_message(video_message):
             await video_message.delete()
         if ping_message:
             await ping_message.delete()
@@ -277,20 +288,27 @@ class Announcement:
             if len(split_message) == 2:
                 ping_preview = split_message[1]
 
-        url = None
+        url = ""
         description = embed.description
         video_message = await get_follow_up_message(message, limit=-1)
 
+        if not is_video_message(video_message):
+            video_message = None
+
         if embed.description is not None:
-            if len(embed.description.split("\n\n")) > 0:
-                url = embed.description.split("\n\n")[0]
-                description = "\n\n".join(description.split("\n\n")[1:])
+            content = embed.description
+
+            if "\n\n" in embed.description:
+                url = embed.description.split("\n\n")[0] + "\n\n"
+                content = embed.description.split("\n\n")[1:]
+
+                description = url + "\n".join(content)
 
         return cls(
             title=embed.title,
-            url=url,
+            url=url or None,
             description=description,
-            video_url=video_message.content,
+            video_url=video_message.content if video_message else None,
             image_url=embed.image.url,
             channel=message.channel,
             ping=ping,
@@ -407,8 +425,11 @@ class AnnouncementBuilderView(discord.ui.View):
             return
 
         self.stop()
+
         await interaction.response.send_message(
-            "Cancelled posting/editing this announcement."
+            "Cancelled editing this announcement."
+            if self.announcement_builder.edit
+            else "Cancelled posting this announcement."
         )
 
     @discord.ui.button(custom_id="anonymous", label="Anonymous?", row=2)
@@ -484,9 +505,11 @@ class AnnouncementBuilderView(discord.ui.View):
             video_message = await get_follow_up_message(
                 self.announcement_builder.message, limit=-1
             )
-            await video_message.edit(
-                content=self.announcement_builder.announcement.video_url
-            )
+
+            if is_video_message(video_message):
+                await video_message.edit(
+                    content=self.announcement_builder.announcement.video_url
+                )
 
             return
 
