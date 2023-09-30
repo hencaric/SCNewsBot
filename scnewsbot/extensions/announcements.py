@@ -25,11 +25,33 @@ async def get_follow_up_message(
 ) -> Optional[discord.Message]:
     index = 0
 
-    async for message in announcement.channel.history(after=announcement.created_at):
-        index += 1
+    if limit == 0:
+        return announcement
+    elif limit < 0:
+        async for message in announcement.channel.history(
+            before=announcement.created_at
+        ):
+            index -= 1
 
-        if message.author.id == announcement._state.user.id and index == limit:
-            return message
+            if message.author.id == announcement._state.user.id and index == limit:
+                return message
+    elif limit > 0:
+        async for message in announcement.channel.history(
+            after=announcement.created_at
+        ):
+            index += 1
+
+            if message.author.id == announcement._state.user.id and index == limit:
+                return message
+
+
+def is_announcement(announcement: discord.Message, /) -> bool:
+    return (
+        announcement.author == announcement.guild.me
+        and len(announcement.embeds) == 1
+        and not announcement.content
+        and not announcement.components
+    )
 
 
 def reformat_description(description: str) -> str:
@@ -97,11 +119,12 @@ class AnnouncementCog(commands.Cog, name="Announcements"):
     @commands.check(can_publish_announcements)
     @announcements.command(brief="Deletes an announcement.")
     async def delete(self, ctx: commands.Context, message: discord.Message) -> None:
-        if message.author != self.bot.user and not message.embeds:
-            await ctx.reply("That is not an announcement.")
+        if not is_announcement(message):
+            await ctx.reply("That is not an announcement!")
+            return
 
-        video_message = await get_follow_up_message(message, limit=1)
-        ping_message = await get_follow_up_message(message, limit=2)
+        video_message = await get_follow_up_message(message, limit=-1)
+        ping_message = await get_follow_up_message(message, limit=1)
 
         if video_message:
             await video_message.delete()
@@ -227,30 +250,27 @@ class Announcement:
     async def from_message(
         cls, message: discord.Message, /, *, bot: commands.Bot
     ) -> Any:
-        if message.author != message.guild.me:
-            raise InvalidAnnouncementException("This is not a bot message.")
-            return
-
-        if not len(message.embeds) == 1:
-            raise InvalidAnnouncementException("This message does not have any embeds.")
-            return
-
-        if message.components:
-            raise InvalidAnnouncementException("This message has not been posted yet.")
+        if not is_announcement(message):
+            raise InvalidAnnouncementException("That is not an announcement!")
             return
 
         embed = message.embeds[0]
-        author = discord.utils.find(
-            lambda member: str(member) == embed.author.name, message.guild.members
-        )
+        author = None
+
+        if embed.footer.text:
+            parsed_footer = embed.footer.text.replace("This post was written by ", "")
+            author = discord.utils.find(
+                lambda member: str(member) == parsed_footer, message.guild.members
+            )
 
         ping = None
         ping_preview = None
-        ping_message = await get_follow_up_message(message, limit=2)
+        ping_message = await get_follow_up_message(message, limit=1)
 
         if ping_message:
+            role_converter = commands.RoleConverter()
             split_message = ping_message.content.split(" - ")
-            ping = await commands.RoleConverter.convert(
+            ping = await role_converter.convert(
                 await bot.get_context(ping_message), split_message[0]
             )
 
@@ -259,7 +279,7 @@ class Announcement:
 
         url = None
         description = embed.description
-        video_message = await get_follow_up_message(message, limit=1)
+        video_message = await get_follow_up_message(message, limit=-1)
 
         if embed.description is not None:
             if len(embed.description.split("\n\n")) > 0:
@@ -309,6 +329,13 @@ class AnnouncementBuilder:
         self.add_option(Option(id="ping_preview", name="Ping Preview", row=1))
 
         for item in _items:
+            if (
+                isinstance(item, discord.ui.Button)
+                and self.edit
+                and item.label == "Post"
+            ):
+                item.label = "Edit"
+
             self.view.add_item(item)
 
     async def get_embed(self, bot: commands.Bot) -> discord.Embed:
@@ -327,10 +354,10 @@ class AnnouncementBuilderView(discord.ui.View):
         super().__init__(timeout=ANNOUNCEMENT_BUILDER_TIMEOUT)
         self.announcement_builder = announcement_builder
 
-    def _has_permission(self, user: discord.User) -> bool:
+    def has_permission(self, user: discord.User) -> bool:
         return user == self.announcement_builder.owner
 
-    async def _update(self, interaction: discord.Interaction, /) -> None:
+    async def update(self, interaction: discord.Interaction, /) -> None:
         if (
             self.announcement_builder.announcement.channel
             and self.announcement_builder.announcement.channel.type
@@ -352,7 +379,7 @@ class AnnouncementBuilderView(discord.ui.View):
     async def button_callback(
         self, interaction: discord.Interaction, button: discord.ui.Button
     ) -> None:
-        if not self._has_permission(interaction.user):
+        if not self.has_permission(interaction.user):
             await interaction.response.send_message(
                 "You cannot use this menu.", ephemeral=True
             )
@@ -373,7 +400,7 @@ class AnnouncementBuilderView(discord.ui.View):
     async def cancel(
         self, interaction: discord.Interaction, button: discord.ui.Button
     ) -> None:
-        if not self._has_permission(interaction.user):
+        if not self.has_permission(interaction.user):
             await interaction.response.send_message(
                 "You cannot use this menu.", ephemeral=True
             )
@@ -388,7 +415,7 @@ class AnnouncementBuilderView(discord.ui.View):
     async def toggle_anonymous(
         self, interaction: discord.Interaction, button: discord.ui.Button
     ) -> None:
-        if not self._has_permission(interaction.user):
+        if not self.has_permission(interaction.user):
             await interaction.response.send_message(
                 "You cannot use this menu.", ephemeral=True
             )
@@ -402,7 +429,7 @@ class AnnouncementBuilderView(discord.ui.View):
         else:
             button.style = discord.ButtonStyle.gray
 
-        await self._update(interaction)
+        await self.update(interaction)
 
     @discord.ui.button(
         custom_id="notification", label="Published?", row=2, disabled=True
@@ -410,7 +437,7 @@ class AnnouncementBuilderView(discord.ui.View):
     async def toggle_notification(
         self, interaction: discord.Interaction, button: discord.ui.Button
     ) -> None:
-        if not self._has_permission(interaction.user):
+        if not self.has_permission(interaction.user):
             await interaction.response.send_message(
                 "You cannot use this menu.", ephemeral=True
             )
@@ -424,7 +451,7 @@ class AnnouncementBuilderView(discord.ui.View):
         else:
             button.style = discord.ButtonStyle.gray
 
-        await self._update(interaction)
+        await self.update(interaction)
 
     @discord.ui.button(
         custom_id="publish", label="Post", style=discord.ButtonStyle.blurple, row=2
@@ -432,7 +459,7 @@ class AnnouncementBuilderView(discord.ui.View):
     async def publish(
         self, interaction: discord.Interaction, button: discord.ui.Button
     ) -> None:
-        if not self._has_permission(interaction.user):
+        if not self.has_permission(interaction.user):
             await interaction.response.send_message(
                 "You cannot use this menu.", ephemeral=True
             )
@@ -455,7 +482,7 @@ class AnnouncementBuilderView(discord.ui.View):
 
             await self.announcement_builder.message.edit(embed=embed)
             video_message = await get_follow_up_message(
-                self.announcement_builder.message, limit=1
+                self.announcement_builder.message, limit=-1
             )
             await video_message.edit(
                 content=self.announcement_builder.announcement.video_url
@@ -483,22 +510,21 @@ class AnnouncementBuilderView(discord.ui.View):
 
         bot = interaction.client
         video_message = None
-        message = await announcement.channel.send(
-            embed=await announcement.get_embed(bot=bot),
-        )
-
-        await message.add_reaction(ANNOUNCEMENT_EMOJI)
-
         if announcement.video_url:
             video_message = await announcement.channel.send(announcement.video_url)
 
+        message = await announcement.channel.send(
+            embed=await announcement.get_embed(bot=bot),
+        )
+        await message.add_reaction(ANNOUNCEMENT_EMOJI)
+
         for channel_id in bot.config.repost_channels:
             repost_channel = await bot.fetch_channel(channel_id)
+            await repost_channel.send(announcement.video_url)
             await repost_channel.send(
                 embed=await announcement.get_embed(bot=bot, show_author=True)
             )
-            await repost_channel.send(announcement.video_url)
-            await repost_channel.send(f"(posted in {announcement.channel.mention})")
+            await repost_channel.send(message.jump_url)
 
         if announcement.ping and announcement.ping_preview:
             await announcement.channel.send(
@@ -512,10 +538,10 @@ class AnnouncementBuilderView(discord.ui.View):
 
         if announcement.will_notify:
             try:
-                await message.publish()
-
                 if video_message:
                     await video_message.publish()
+
+                await message.publish()
             except discord.Forbidden:
                 pass
 
@@ -550,10 +576,10 @@ class ChangeOptionModal(discord.ui.Modal):
 
         if conversion_success and not option_value:
             item.style = discord.ButtonStyle.gray
-            await self.announcement_builder.view._update(interaction)
+            await self.announcement_builder.view.update(interaction)
         elif conversion_success:
             item.style = discord.ButtonStyle.green
-            await self.announcement_builder.view._update(interaction)
+            await self.announcement_builder.view.update(interaction)
         else:
             await interaction.response.send_message(
                 "Could not find that role or channel.", ephemeral=True
