@@ -543,7 +543,10 @@ class AnnouncementBuilderView(discord.ui.View):
 
         for channel_id in bot.config.repost_channels:
             repost_channel = await bot.fetch_channel(channel_id)
-            await repost_channel.send(announcement.video_url)
+
+            if announcement.video_url:
+                await repost_channel.send(announcement.video_url)
+
             await repost_channel.send(
                 embed=await announcement.get_embed(bot=bot, show_author=True)
             )
