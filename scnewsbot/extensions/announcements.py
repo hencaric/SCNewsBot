@@ -7,7 +7,7 @@ import discord
 from utils import can_publish_announcements
 
 ANNOUNCEMENT_BUILDER_TIMEOUT = 1200
-ANNOUNCEMENT_EMOJI = "👍"  # <:upvote:354233015842635776>
+ANNOUNCEMENT_EMOJI = "<:upvote:354233015842635776>"  # <:upvote:354233015842635776>
 DEFAULT_IMAGE_URL = "https://media.discordapp.net/attachments/1062905729532571719/1123340546979676311/NewsDefault.jpg?width=810&height=180"
 INSTRUCTIONS = """\
 1. Title should not use any formatting.

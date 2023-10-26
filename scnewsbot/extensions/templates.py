@@ -40,16 +40,20 @@ PING_PREVIEWS = """\
 - JP: `Jump Point`
 """
 IDS = """\
-**Channels**
+__**Channels:**__
+Server News - `1113146864804573285`
 Patch Notes - `585952222853201941`
 SC News - `569635458183856149`
 General News - `803341100618219540`
 
-**Roles**
+__**Roles:**__
 Server News - `1113152142300156004`
 Patch Notes - `620025894559547412`
 SC News - `620025828079697920`
 General News - `803343410794594385`
+
+__**Where to post what:**__
+[Check here](https://discord.com/channels/82210263440306176/611922107345141760/1113905662217441330) for a guide on what post types go where.
 """
 
 

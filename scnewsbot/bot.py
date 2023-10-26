@@ -43,7 +43,7 @@ class CoreCog(commands.Cog, name="Core"):
 
     @commands.Cog.listener()
     async def on_ready(self) -> None:
-        print("The bot is now ready.")
+        print("The SC News Bot is now ready.")
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
@@ -61,11 +61,11 @@ class CoreCog(commands.Cog, name="Core"):
         embed = discord.Embed(
             color=self.bot.config.embed_color,
             title="Info",
-            description="SCNewsBot is a Discord bot created for the r/starcitizen\n Discord server to help with writing news posts.",
+            description="Empire Report is an instance of the SC News Bot created for the r/starcitizen Org Hub\n Discord server to help with writing news posts.",
         )
-        embed.add_field(
-            name="Version", value=f"v{self.bot.version}+{self._get_version()}"
-        )
+#        embed.add_field(
+#            name="Version", value=f"v{self.bot.version}+{self._get_version()}"
+#        )
         embed.add_field(
             name="Library", value=f"discord.py v{discord.__version__}", inline=False
         )
