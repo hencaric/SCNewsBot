@@ -211,13 +211,13 @@ class Announcement:
                 value = value[1:]
 
             converted_value = discord.utils.find(
-                lambda c: c.name.lower() == value.lower(), guild.text_channels
+                lambda channel: channel.name.lower() == value.lower(), guild.text_channels
             )
             if not converted_value and value.isnumeric():
                 converted_value = guild.get_channel(int(value))
         elif option.id == "ping":
             converted_value = discord.utils.find(
-                lambda r: r.name.lower() == value.lower(), guild.roles
+                lambda role: role.name.lower() == value.lower(), guild.roles
             )
             if not converted_value and value.isnumeric():
                 converted_value = guild.get_role(int(value))
