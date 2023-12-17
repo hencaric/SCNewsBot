@@ -211,7 +211,8 @@ class Announcement:
                 value = value[1:]
 
             converted_value = discord.utils.find(
-                lambda channel: channel.name.lower() == value.lower(), guild.text_channels
+                lambda channel: channel.name.lower() == value.lower(),
+                guild.text_channels,
             )
             if not converted_value and value.isnumeric():
                 converted_value = guild.get_channel(int(value))
