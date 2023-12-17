@@ -1,3 +1,7 @@
+> [!WARNING]
+> As of December 2023, this project does not work with Python 3.12.
+> Please use Python 3.11 until all dependencies are updated to support it.
+
 # scnewsbot
 A bot for the r/starcitizen Discord server.
 
