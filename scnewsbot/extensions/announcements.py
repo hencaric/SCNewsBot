@@ -496,7 +496,10 @@ class AnnouncementBuilderView(discord.ui.View):
         )
 
         if self.announcement_builder.edit:
-            await interaction.response.send_message("Your announcement was edited! 🎉")
+            await interaction.response.send_message(
+                f"Your announcement was edited! 🎉"
+                + f" ({self.announcement_builder.message.jump_url})"
+            )
             self.stop()
 
             embed = await self.announcement_builder.get_embed(bot=interaction.client)
@@ -527,9 +530,6 @@ class AnnouncementBuilderView(discord.ui.View):
             )
             return
 
-        await interaction.response.send_message(
-            "Your announcement was posted! 🎉 https://i.imgur.com/HRoxTzg.gif"
-        )
         self.stop()
 
         bot = interaction.client
@@ -541,6 +541,11 @@ class AnnouncementBuilderView(discord.ui.View):
             embed=await announcement.get_embed(bot=bot),
         )
         await message.add_reaction(ANNOUNCEMENT_EMOJI)
+
+        await interaction.response.send_message(
+            f"Your announcement was posted! 🎉 ({message.jump_url})"
+            + "\nhttps://i.imgur.com/HRoxTzg.gif"
+        )
 
         for channel_id in bot.config.repost_channels:
             repost_channel = await bot.fetch_channel(channel_id)
@@ -586,9 +591,11 @@ class ChangeOptionModal(discord.ui.Modal):
             label=self.option.name,
             required=self.option.id in ("title", "channel"),
             placeholder=self.option.directions,
-            style=discord.TextStyle.long
-            if self.option.is_long
-            else discord.TextStyle.short,
+            style=(
+                discord.TextStyle.long
+                if self.option.is_long
+                else discord.TextStyle.short
+            ),
         )
         self.add_item(self.option_input)
 
