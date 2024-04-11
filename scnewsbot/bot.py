@@ -1,6 +1,8 @@
 import subprocess
 from discord.ext import commands
+from discord.ui import Button
 import discord
+import datetime
 from utils import Config
 
 VERSION = "1.0.3"
@@ -43,7 +45,11 @@ class CoreCog(commands.Cog, name="Core"):
 
     @commands.Cog.listener()
     async def on_ready(self) -> None:
-        print("The bot is now ready.")
+        print("The News Bot is now ready.")
+        channel = self.bot.get_channel(611922107345141760)
+        embed=discord.Embed(title=f"The News Bot is now online!",description="Hello! Please use the below command to summon the embed editor. ```&embed create```", color=0x00FFFF)
+        embed.timestamp = datetime.datetime.now()
+        await channel.send(embed=embed)
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:

@@ -20,7 +20,7 @@ TEMPLATES: dict[str, Announcement] = {
 PING_PREVIEWS = """\
 **Patch Notes**
 - New Wave: `3.XX Wave X Release`
-- PTU Update: `3.XX PTU Update`
+- PTU/EPTU/Tech-Preview/Evocati Update: `3.XX PTU Update`
 - Live Update: `3.XX LIVE Update`
 
 **SC News**
@@ -40,16 +40,24 @@ PING_PREVIEWS = """\
 - JP: `Jump Point`
 """
 IDS = """\
-**Channels**
-Patch Notes - `585952222853201941`
-SC News - `569635458183856149`
-General News - `803341100618219540`
+__**Server News:**__
+Channel - `1113146864804573285`
+Role - `1113152142300156004`
+__**Patch Notes:**__
+Channel - `585952222853201941`
+Role - `620025894559547412`
+__**SC News:**__
+Channel - `569635458183856149`
+Role - `620025828079697920`
+__**General News:**__
+Channel - `803341100618219540`
+Role - `803343410794594385`
 
-**Roles**
-Server News - `1113152142300156004`
-Patch Notes - `620025894559547412`
-SC News - `620025828079697920`
-General News - `803343410794594385`
+__**Ping Previews:**__
+[Check here](https://discord.com/channels/82210263440306176/611922107345141760/1228019382454849587)
+
+__**Posting Locations:**__
+[Check here](https://discord.com/channels/82210263440306176/611922107345141760/1113905662217441330) for a guide on what post types go where.
 """
 
 
