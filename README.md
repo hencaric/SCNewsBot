@@ -4,7 +4,7 @@ The production version of the SC News Bot used by the r/StarCitizen Discord serv
 - Join https://discord.gg/starcitizen for the best Star Citizen community on the internet
 
 ## Version
-1.0.5
+1.0.4
 
 ## Authors
 - Ian (hencaric)
