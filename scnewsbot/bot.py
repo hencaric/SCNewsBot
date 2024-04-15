@@ -62,16 +62,31 @@ class CoreCog(commands.Cog, name="Core"):
             except discord.Forbidden:
                 pass
 
+#    @commands.Cog.listener()
+#    async def on_message(self, message):
+#        if message.channel.id == 649390966259580929 and message.author.id != 1091116499936223252:
+#            if message.embeds:
+#                for embed in message.embeds:
+#                    reply_channel = self.bot.get_channel(611922107345141760)
+#                    if "Patch Notes" in embed.title:
+#                        await reply_channel.send(f"<@&159107041896562688> CIG has published new [Patch Notes](<{embed.url}>).")
+#                    elif "Galactapedia" in embed.title:
+#                        await reply_channel.send(f"<@&159107041896562688> CIG has published a new [Galactapedia update](<{embed.url}>).")
+#                    elif "This Week in Star Citizen" in embed.title:
+#                        await reply_channel.send(f"<@&159107041896562688> CIG has published a new [TWISC](<{embed.url}>).")
+#                    elif "Monthly Report" in embed.title:
+#                        await reply_channel.send(f"<@&159107041896562688> CIG has published a new [Monthly Report](<{embed.url}>).")
+
     @commands.hybrid_command(description="Shows you some info about the bot.")
     async def info(self, ctx: commands.Context) -> None:
         embed = discord.Embed(
             color=self.bot.config.embed_color,
             title="Info",
-            description="SCNewsBot is a Discord bot created for the r/starcitizen\n Discord server to help with writing news posts.",
+            description="The SC News Bot is a bot created for the r/starcitizen Discord server to help with writing news posts.",
         )
-        embed.add_field(
-            name="Version", value=f"v{self.bot.version}+{self._get_version()}"
-        )
+#        embed.add_field(
+#            name="Version", value=f"v{self.bot.version}+{self._get_version()}"
+#        )
         embed.add_field(
             name="Library", value=f"discord.py v{discord.__version__}", inline=False
         )

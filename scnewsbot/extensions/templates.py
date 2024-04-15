@@ -33,6 +33,7 @@ PING_PREVIEWS = """\
 - Dynamic Event: `Event Name PU/PTU`
 
 **General News**
+- This Week in Star Citizen: 'This Week in Star Citizen'
 - Sneak Peek: `Weekly Sneak Peek`
 - Lore Post: `Lore Post: Name`
 - Dev Reply: `Dev Reply`
