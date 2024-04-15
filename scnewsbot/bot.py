@@ -94,10 +94,14 @@ class CoreCog(commands.Cog, name="Core"):
             name="Authors",
             value=f"<@288522211164160010> and <@998070081709932654>",
         )
+        embed.add_field(
+            name="Production Code",
+            value=f"[Link](https://github.com/hencaric/SCNewsBot)",
+        )
         view = discord.ui.View()
         view.add_item(
             discord.ui.Button(
-                label="Source Code",
+                label="Source Code for Public Use",
                 url="https://github.com/mudkipdev/scnewsbot",
                 style=discord.ButtonStyle.link,
             )
