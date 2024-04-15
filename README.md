@@ -1,11 +1,15 @@
-# scnewsbot
-A bot for the r/starcitizen Discord server.
+# SC News Bot
+The production version of the SC News Bot used by the r/StarCitizen Discord server for the production of news posts. 
 
-## Installation
-1. Make sure you have installed [Python](https://python.org) (>=3.11), [Git](https://git-scm.org), and [Poetry](https://pypi.org/project/poetry).
-2. Clone the repository to your hard drive. (`git clone https://github.com/mudkipdev/scnewsbot`)
-3. Run `cd scnewsbot` and `poetry install` to install the required dependencies.
-4. Copy the `example.config.toml` and `example.env` files to `config.toml` and `.env` respectively.
-5. Edit the config files to your liking, then run the bot using `poetry run python scnewsbot` (This might also be `py`, `python3` or `python3.11` depending on your operating system).
+- Join https://discord.gg/starcitizen for the best Star Citizen community on the internet
 
-![](https://i.pinimg.com/originals/a8/3a/54/a83a543f8f669534b93eb503d0cb9e3d.jpg)
+## Version
+1.0.5
+
+## Authors
+- Ian (hencaric)
+https://github.com/hencaric
+- mudkip
+https://github.com/mudkipdev
+
+![](https://cdn.discordapp.com/attachments/1113146864804573285/1214590384001515560/41bannerEisenlowe.png?ex=65f9aa71&is=65e73571&hm=1cd99b04925a778d05b6d1cd1ae804af083760b0c11cc7ae96d44491b1fcb3ff&)
