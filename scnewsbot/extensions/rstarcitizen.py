@@ -19,6 +19,21 @@ class RStarCitizen(commands.Cog):
         await ctx.reply("```=aclose Situation resolved, please only reply if there is something else.```")
 
 #    @commands.Cog.listener()
+#    async def on_message(self, message):
+#        if message.channel.id == 649390966259580929 and message.author.id != 1091116499936223252:
+#            if message.embeds:
+#                for embed in message.embeds:
+#                    reply_channel = self.bot.get_channel(611922107345141760)
+#                    if "Patch Notes" in embed.title:
+#                        await reply_channel.send(f"<@&159107041896562688> CIG has published new [Patch Notes](<{embed.url}>).")
+#                    elif "Galactapedia" in embed.title:
+#                        await reply_channel.send(f"<@&159107041896562688> CIG has published a new [Galactapedia update](<{embed.url}>).")
+#                    elif "This Week in Star Citizen" in embed.title:
+#                        await reply_channel.send(f"<@&159107041896562688> CIG has published a new [TWISC](<{embed.url}>).")
+#                    elif "Monthly Report" in embed.title:
+#                        await reply_channel.send(f"<@&159107041896562688> CIG has published a new [Monthly Report](<{embed.url}>).")
+
+#    @commands.Cog.listener()
 #    async def on_ready(self) -> None:
 #        for channel_id in MEMBER_COUNT_CHANNELS:
 #            self.update_member_count.start(channel_id)
