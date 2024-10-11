@@ -61,7 +61,6 @@ __**Posting Locations:**__
 [Check here](https://discord.com/channels/82210263440306176/611922107345141760/1113905662217441330) for a guide on what post types go where.
 """
 
-
 class TemplatesCog(commands.Cog, name="Templates"):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot

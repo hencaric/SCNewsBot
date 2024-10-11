@@ -545,7 +545,8 @@ class AnnouncementBuilderView(discord.ui.View):
 
         await interaction.response.send_message(
             f"Your announcement was posted! 🎉 ({message.jump_url})"
-            + "\nhttps://i.imgur.com/HRoxTzg.gif"
+            + "\nhttps://i.postimg.cc/J48Vk8my/meme-8-1.gif"
+            + "\n<@288522211164160010> tweet this shit brotha"
         )
 
         for channel_id in bot.config.repost_channels:
