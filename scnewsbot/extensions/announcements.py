@@ -9,7 +9,7 @@ from utils import can_publish_announcements
 
 ANNOUNCEMENT_BUILDER_TIMEOUT = 1200
 ANNOUNCEMENT_EMOJI = "<:upvote:354233015842635776>"
-DEFAULT_IMAGE_URL = "https://cdn.discordapp.com/attachments/611922107345141760/1227292305556242582/41bannerEisenlowe.png?"
+DEFAULT_IMAGE_URL = "https://cdn.discordapp.com/attachments/611922107345141760/1348673800874754088/Polaris_over_Yela_bright.png?ex=67eff5db&is=67eea45b&hm=f851f8aa07e09ab2c506d6dc395ce91a2db623b0a0c6c090eb19360b0c464c7e&"
 INSTRUCTIONS = """\
 1. Title should not use any formatting.
 2. "Video" should only be used for YouTube or video links with pretty embeds.
