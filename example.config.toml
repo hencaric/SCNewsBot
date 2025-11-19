@@ -5,7 +5,8 @@ debug = true
 prefix = "&"
 extensions = [
     "extensions.announcements",
-    "extensions.templates"
+    "extensions.templates",
+    "extensions.dt_converter"
 ]
 
 repost_channels = []
