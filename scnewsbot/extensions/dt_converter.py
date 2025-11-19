@@ -39,8 +39,7 @@ class DtConverterCog(commands.Cog, name="DTConverter"):
 
         if format_ not in FORMATS:
             await ctx.reply(
-                f"Invalid format: {format_}. "
-                f"Please use on of the following: {[fmt for fmt in FORMATS]}"
+                f"Invalid format: {format_}. Please use on of the following: {FORMATS}"
             )
             return
 
