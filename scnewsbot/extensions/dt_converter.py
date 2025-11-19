@@ -21,7 +21,7 @@ class DtConverterCog(commands.Cog, name="DTConverter"):
     @commands.check(can_publish_announcements)
     @commands.command(brief="Convert dt to discord timestamp")
     async def convert(
-        self, ctx: commands.Context, format_: str, timestamps: list[str]
+        self, ctx: commands.Context, format_: str, timestamps: commands.Greedy[str]
     ) -> None:
         """
         Attempts to convert a given datetime string into a Discord epoch timestamp.
