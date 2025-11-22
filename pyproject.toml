@@ -14,6 +14,7 @@ python = "^3.12"
 discord-py = "^2.3.2"
 jishaku = "^2.5.2"
 python-dotenv = "^1.0.1"
+python-dateutil = "2.9.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.3.0"
