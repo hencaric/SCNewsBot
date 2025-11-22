@@ -28,7 +28,7 @@ class DtConverterCog(commands.Cog, name="DTConverter"):
         Available formats:
             - d: 11/18/2025
             - s: 11/18/2025 4:11 PM
-            - s: 11/18/2025 4:11 PM
+            - S: 11/18/2025 4:11:00 PM
             - D: November 18, 2025
             - t: 4:00 PM
             - T: 4:00:00 PM
