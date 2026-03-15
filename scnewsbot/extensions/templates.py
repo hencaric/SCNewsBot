@@ -3,20 +3,18 @@ import discord
 from extensions.announcements import Announcement
 from utils import can_publish_announcements
 
+# TEMPLATES
 TEMPLATES: dict[str, Announcement] = {
     "isc": Announcement(title="Inside Star Citizen | [topic] - [subtopic]"),
     "scl": Announcement(title="Star Citizen Live | [topic] - [subtopic]"),
     "tracker": Announcement(title="Progress Tracker Update | [date]"),
     "roundup": Announcement(title="Roadmap Roundup | [date]"),
-    "patchnotes": Announcement(
-        title="Star Citizen Alpha X.XX.X XPTU.XXXXXXX Patch Notes"
-    ),
+    "patchnotes": Announcement(title="Star Citizen Alpha X.XX.X XPTU.XXXXXXX Patch Notes"),
     "galactapedia": Announcement(title="Weekly Sneak Peek | [date]"),
     "devreply": Announcement(title="Dev Reply | Topic"),
-    "twisc": Announcement(
-        title="This Week in Star Citizen | Week of [date]",
-    ),
+    "twisc": Announcement(title="This Week in Star Citizen | Week of [date]"),
 }
+
 PING_PREVIEWS = """\
 **Patch Notes**
 - New Wave: `3.XX Wave X Release`
@@ -40,6 +38,7 @@ PING_PREVIEWS = """\
 - Subscriber Items: `Month Subscriber Promotions`
 - JP: `Jump Point`
 """
+
 IDS = """\
 __**Server News:**__
 Channel - `1113146864804573285`
@@ -67,6 +66,7 @@ __**Posting Locations:**__
 [Check here](https://discord.com/channels/82210263440306176/611922107345141760/1113905662217441330) for a guide on what post types go where.
 """
 
+# COG
 class TemplatesCog(commands.Cog, name="Templates"):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
@@ -97,8 +97,9 @@ class TemplatesCog(commands.Cog, name="Templates"):
             await ctx.reply(
                 f"Could not find that template. Use `{ctx.prefix}templates list` to list all available templates."
             )
+            return
 
-        embed = await template.get_embed(bot=self.bot)
+        embed = template.embed()
         embed.remove_author()
         await ctx.reply(embed=embed)
 
@@ -114,9 +115,7 @@ class TemplatesCog(commands.Cog, name="Templates"):
     @commands.command(name="previews", brief="Shows all the possible ping previews.")
     async def ping_previews(self, ctx: commands.Context) -> None:
         await ctx.reply(
-            embed=discord.Embed(
-                color=self.bot.config.embed_color, description=PING_PREVIEWS
-            ),
+            embed=discord.Embed(color=self.bot.config.embed_color, description=PING_PREVIEWS),
             allowed_mentions=discord.AllowedMentions.none(),
         )
 
@@ -127,6 +126,6 @@ class TemplatesCog(commands.Cog, name="Templates"):
             embed=discord.Embed(color=self.bot.config.embed_color, description=IDS)
         )
 
-
+# SETUP
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(TemplatesCog(bot))

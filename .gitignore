@@ -1,5 +1,6 @@
 # scnewsbot
 config.toml
+rstarcitizen.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
