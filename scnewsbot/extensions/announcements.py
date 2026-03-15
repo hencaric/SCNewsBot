@@ -54,7 +54,7 @@ class Announcement:
         publish: bool = False,
     ):
         self.title = title
-        self.description = description
+        self.description = self.process_special_chars(description)
         self.url = url
         self.image_url = image_url or DEFAULT_IMAGE_URL
         self.video_url = video_url
@@ -85,6 +85,23 @@ class Announcement:
             e.set_image(url=self.image_url)
         return e
 
+    # ----------------- New helper -----------------
+    @staticmethod
+    def process_special_chars(text: str) -> str:
+        if not text:
+            return text
+        lines = text.splitlines()
+        processed_lines = []
+        for line in lines:
+            stripped = line.lstrip()
+            if stripped.startswith("-"):
+                processed_lines.append("➣ " + stripped[1:].lstrip())
+            elif stripped.startswith("+"):
+                processed_lines.append("    ✦ " + stripped[1:].lstrip())
+            else:
+                processed_lines.append(line)
+        return "\n".join(processed_lines)
+
 # MODAL
 class TextModal(discord.ui.Modal):
     def __init__(self, builder, field: str, label: str, long: bool = False):
@@ -101,7 +118,14 @@ class TextModal(discord.ui.Modal):
         self.add_item(self.input)
 
     async def on_submit(self, interaction: discord.Interaction):
-        setattr(self.builder.announcement, self.field, self.input.value)
+        if self.field == "description":
+            setattr(
+                self.builder.announcement,
+                self.field,
+                Announcement.process_special_chars(self.input.value)
+            )
+        else:
+            setattr(self.builder.announcement, self.field, self.input.value)
         self.builder.update_field_buttons()
         await interaction.response.edit_message(
             embed=self.builder.announcement.embed(),
@@ -286,4 +310,5 @@ class Announcements(commands.Cog):
 # SETUP
 async def setup(bot: commands.Bot):
     await bot.add_cog(Announcements(bot))
+
 
