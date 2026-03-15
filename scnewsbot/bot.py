@@ -5,7 +5,7 @@ import discord
 import datetime
 from utils import Config
 
-VERSION = "1.0.4"
+VERSION = "3.0.2"
 INTENTS = discord.Intents.default()
 INTENTS.message_content = True
 INTENTS.members = True
@@ -19,7 +19,7 @@ class Bot(commands.Bot):
             allowed_mentions=discord.AllowedMentions(everyone=False),
             case_insensitive=True,
             activity=discord.Activity(
-                type=discord.ActivityType.watching, name="the devs..."
+                type=discord.ActivityType.watching, name="Writing some news!"
             ),
         )
         self.config = config
@@ -66,25 +66,17 @@ class CoreCog(commands.Cog, name="Core"):
             description="The SC News Bot is a bot created for the r/starcitizen Discord server to help with writing news posts.",
         )
         embed.add_field(
-            name="Version", value=f"v{self.bot.version}+{self._get_version()}"
+            name="Version", value=f"v{self.bot.version}"
         )
         embed.add_field(
             name="Library", value=f"discord.py v{discord.__version__}", inline=False
         )
         embed.add_field(
             name="Authors",
-            value=f"<@288522211164160010> and <@998070081709932654>",
+            value=f"<@288522211164160010>",
         )
         embed.add_field(
             name="Production Code",
             value=f"[Link](https://github.com/hencaric/SCNewsBot)",
         )
-        view = discord.ui.View()
-        view.add_item(
-            discord.ui.Button(
-                label="Source Code for Public Use",
-                url="https://github.com/mudkipdev/scnewsbot",
-                style=discord.ButtonStyle.link,
-            )
-        )
-        await ctx.reply(embed=embed, view=view, mention_author=False)
+        await ctx.reply(embed=embed, mention_author=False)
